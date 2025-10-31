@@ -18,6 +18,7 @@ from json_manager import JSON_Manager
 from ui_manager import UIManager
 from all_presets import presets as presets
 
+print("this is a test")
 def main():
 
     json_manager = JSON_Manager()
