@@ -1,8 +1,5 @@
 import maya.cmds as cmds
 import maya.mel as mel
-import sys
-import os
-import json
 import webbrowser
 
 
@@ -10,7 +7,7 @@ from preset import Preset
 from json_manager import JsonManager
 from all_presets import presets
 
-#UI MANAGER CLASS#
+# UI MANAGER CLASS #
 #######################################################################################
 class UiManager: 
     
@@ -39,7 +36,7 @@ class UiManager:
         self.ncloth_controls = {}
 
 #######################################################################################
-#BASIC FUNCTIONS#
+# BASIC FUNCTIONS #
 #######################################################################################    
 
     #Open Autodesk Maya link on nCloth properties when INFO button pressed
@@ -81,7 +78,7 @@ class UiManager:
         return preset_name
     
 #######################################################################################
-#SETTINGS CHANGED HANDLER#
+# SETTINGS CHANGED HANDLER #
 #######################################################################################
 
     #CALLBACK TO UPDATE NAME WHEN SETTINGS CHANGED
@@ -107,7 +104,7 @@ class UiManager:
     #current_preset = loaded_presets["Default"]
 
 #######################################################################################
-#UI UPDATE AND PRESET SELECTION#
+# UI UPDATE AND PRESET SELECTION #
 #######################################################################################
 
     #UPDATE UI BASED OFF OF WHICH PRESET BUTTON WAS PRESSED#
@@ -227,7 +224,7 @@ class UiManager:
         return settings
 
 #######################################################################################
-#COLLIDER AND TOOL ACTIONS#
+# COLLIDER AND TOOL ACTIONS #
 #######################################################################################
 
     #APPLY PASSIVE COLLIDER TO SELECTED MESH#
@@ -315,7 +312,7 @@ class UiManager:
             cmds.menuItem(label=preset_name, parent=dropdown)
 
 #######################################################################################
-#UI CREATION#
+# UI CREATION #
 #######################################################################################
     #FUNCTION TO CREATE THE UI#
     def create_UI(self):

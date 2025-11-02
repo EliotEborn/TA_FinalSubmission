@@ -1,7 +1,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 
-#PRESET CLASS#
+# PRESET CLASS #
 #######################################################################################
 
 class Preset:
@@ -38,7 +38,7 @@ class Preset:
 
 
 #######################################################################################
-#CONVERT PRESET DATA TO AND FROM DICTIONARIES#
+# CONVERT PRESET DATA TO AND FROM DICTIONARIES #
 #######################################################################################
 
     #Converts preset object attributes to a dictionary
@@ -51,10 +51,10 @@ class Preset:
         return cls(**data)
     
 #######################################################################################
-#APPLY PRESET#
+# APPLY PRESET #
 #######################################################################################
 
-    #APPLY SELECTED PRESETS MODIFIED NCLOTH ATTRIBUTES TO THE SELECTED MESH#
+    # APPLY SELECTED PRESETS MODIFIED NCLOTH ATTRIBUTES TO THE SELECTED MESH #
     def apply_preset(self):
         #Get currently selected objects in the scene
         selection = cmds.ls(selection=True)
@@ -109,11 +109,10 @@ class Preset:
             print("Action Cancelled")
 
 #######################################################################################
-#SAVE PRESET#
+# SAVE PRESET #
 #######################################################################################
-    #SAVES A NEW PRESET BASED ON CURRENT UI SETTINGS AND ADDS IT TO THE PRESETS DICTIONARY#
+    # SAVES A NEW PRESET BASED ON CURRENT UI SETTINGS AND ADDS IT TO THE PRESETS DICTIONARY #
     #Class method used so the class can be called directly since we do not have a class instance 
-    #Need to pass cls through the function (cls = class)
     @staticmethod
     def save_preset(settings_dict, json_manager, ncloth_controls, update_dropdown_func, presets):
 
