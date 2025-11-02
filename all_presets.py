@@ -1,5 +1,5 @@
 from preset import Preset
-from json_manager import JSON_Manager
+from json_manager import JsonManager
 import os
 
 #PRESET OBJECTS#

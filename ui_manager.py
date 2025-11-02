@@ -7,17 +7,17 @@ import webbrowser
 
 
 from preset import Preset
-from json_manager import JSON_Manager
+from json_manager import JsonManager
 from all_presets import presets
 
 #UI MANAGER CLASS#
 #######################################################################################
-class UIManager: 
+class UiManager: 
     
     def __init__(self):
 
         #Initialises JSON Manager and loads presets
-        self.jsonManager = JSON_Manager()
+        self.jsonManager = JsonManager()
 
         if self.jsonManager.is_new_file: 
             self.jsonManager.save_presets(presets)

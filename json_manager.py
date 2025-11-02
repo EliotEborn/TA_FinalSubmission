@@ -8,7 +8,7 @@ from preset import Preset
 
 #JSON MANAGER CLASS#
 #######################################################################################
-class JSON_Manager:
+class JsonManager:
     
     def __init__(self, file_path=None):
         self.is_new_file = False

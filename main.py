@@ -14,17 +14,17 @@ sys.path.append(new_file_path)
 print(new_file_path)
 
 from preset import Preset as Preset
-from json_manager import JSON_Manager
-from ui_manager import UIManager
+from json_manager import JsonManager
+from ui_manager import UiManager
 from all_presets import presets as presets
 
 print("this is a test")
 def main():
 
-    json_manager = JSON_Manager()
+    json_manager = JsonManager()
     presets = json_manager.load_presets()
 
-    ui_manager = UIManager()
+    ui_manager = UiManager()
     ui_manager.create_UI()
 
 if __name__ == "__main__":
