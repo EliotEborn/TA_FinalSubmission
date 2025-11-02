@@ -3,6 +3,7 @@ import maya.mel as mel
 
 #PRESET CLASS#
 #######################################################################################
+
 class Preset:
     def __init__(self, name, description, bounce, friction, 
                  stretchResistance, compressionResistance, bendResistance, 
@@ -35,22 +36,36 @@ class Preset:
         self.maxIterations = maxIterations
         self.pushOutRadius = pushOutRadius
 
+
+#######################################################################################
+#CONVERT PRESET DATA TO AND FROM DICTIONARIES#
+#######################################################################################
+
+    #Converts preset object attributes to a dictionary
     def to_dict(self):
         return self.__dict__
     
+    #Create a preset object from a dictionary of attributes
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
     
+#######################################################################################
+#APPLY PRESET#
+#######################################################################################
+
     #APPLY SELECTED PRESETS MODIFIED NCLOTH ATTRIBUTES TO THE SELECTED MESH#
-    #PRESET CLASS
-    def applypreset(self):
+    def apply_preset(self):
+        #Get currently selected objects in the scene
         selection = cmds.ls(selection=True)
+
+        #If nothing is selected the user gets warned in the command line and a dialog box tells them they must select a mesh 
         if not selection: 
                 cmds.warning("Please select a mesh to continue")
                 cmds.confirmDialog(title="Confirm Action", message=f"Error: Please select a mesh to continue.", button=['OK'], dismissString='No')
                 return
 
+        #Dialog box confirms the user wants to apply the preset to the selection
         selection_str = ", ".join(selection)
         confirmation = cmds.confirmDialog(title="Confirm Action", message=f"Are you sure you'd like to apply Preset '{self.name}' to {selection_str}?", button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No')
         if confirmation == 'Yes': 
@@ -59,9 +74,15 @@ class Preset:
 
                 #Use MEL command to apply nCloth to the selected mesh/es for nCloth simulation (if mesh isn't already nCloth)
                 mel.eval("createNCloth 0")
+
+                #Get all shape nodes of the object
                 shapes = cmds.listRelatives(obj, shapes=True) or []
                 for shape in shapes:
+
+                    #Find any connected nCloth nodes
                     connections = cmds.listConnections(shape, type="nCloth") or []
+
+                    #Apply all preset attributes to the nCloth node
                     for ncloth_node in connections: 
                         cmds.setAttr(ncloth_node + ".bounce", self.bounce)
                         cmds.setAttr(ncloth_node + ".friction", self.friction)
@@ -87,24 +108,29 @@ class Preset:
         else: 
             print("Action Cancelled")
 
+#######################################################################################
+#SAVE PRESET#
+#######################################################################################
     #SAVES A NEW PRESET BASED ON CURRENT UI SETTINGS AND ADDS IT TO THE PRESETS DICTIONARY#
     #Class method used so the class can be called directly since we do not have a class instance 
     #Need to pass cls through the function (cls = class)
-    #UI WAS CHANGED FROM SIDE SCROLLER TO DROPDOWN NEED TO CHANGE FINAL FUNCTION SINCE I CHANGED NAME OF FUNCTION
-    #ADD CONFIRMATION DIALOG 
     @staticmethod
-    def savePreset(settings_dict, json_manager, ncloth_controls, update_dropdown_func, presets):
+    def save_preset(settings_dict, json_manager, ncloth_controls, update_dropdown_func, presets):
 
-        new_name = settings_dict.get("name", "")
+        #STRIP MAKES SURE NO LEADING OR TRAILING SPACES 
+        new_name = settings_dict.get("name", "").strip()
 
         #Saving prevented if preset name is empty or already exists
         if not new_name:
             cmds.warning("Preset name cannot be empty")
             return
         
+        #Saving prevented if preset name is Custom -
+        if new_name == "Custom -":
+            cmds.warning("You cannot save a preset with name 'Custom -'. Please choose another name.")
+            return
 
-        #presets = json_manager.load_presets()
-
+        #Saving prevented if custom name is already in use by another preset
         if new_name in presets:
             cmds.warning(f"Preset '{new_name}' already exists! Please choose another name.")
             return
@@ -131,18 +157,17 @@ class Preset:
             update_dropdown_func(presets, ncloth_controls)
         else:
             cmds.warning(f"'{new_name}' save cancelled!")
-
+#######################################################################################
+#DELETE PRESET#
+#######################################################################################
     @classmethod
-    def deletePreset(cls, preset_name, loaded_presets, json_manager, ncloth_controls, update_dropdown_func):
-        
-        #Load the latest presets from disk 
-        #presets = json_manager.load_presets() 
+    def delete_preset(cls, preset_name, loaded_presets, json_manager, ncloth_controls, update_dropdown_func):
 
         #ENSURES PRESET NAME HAS NO SPACES
         preset_name = preset_name.strip()
 
         #Prevent deleting pre-defined presets
-        protected_presets = ["Custom", "T-Shirt Cotton", "Silk", "Chiffon", "Heavy Denim", "Thick Leather", 
+        protected_presets = ["Custom", "Custom -", "T-Shirt Cotton", "Silk", "Chiffon", "Heavy Denim", "Thick Leather", 
                            "Jelly", "Solid Rubber", "Concrete", "Lava", "Default"]
 
         if preset_name in protected_presets:
@@ -183,5 +208,4 @@ class Preset:
             print(f"Preset '{preset_name}' deleted!")
         else:
             print(f"Deletion of preset '{preset_name}' cancelled!")
-
 #######################################################################################  

@@ -124,7 +124,7 @@ class UIManager:
             self.current_preset = preset
             print(f"selected preset: {preset.name}")
 
-            self.updateUI(preset)
+            self.update_UI(preset)
             print(f"Update UI called with preset: {preset.name}")
 
             #GET CURRENT SETTINGS AND COMPARE WITH ORIGINAL SETTINGS
@@ -153,7 +153,7 @@ class UIManager:
 
 
     #UPDATE UI BASED ON THE VALUES OF THE CURRENT PRESET#
-    def updateUI(self, current_preset):
+    def update_UI(self, current_preset):
 
             #Update the preset name and description in their associated text fields
             cmds.textField(self.ncloth_controls['fieldpresetName'], edit = True, text=current_preset.name)
@@ -277,15 +277,15 @@ class UIManager:
             self.loaded_presets[preset_matches].applypreset()
         else:
             custom_preset = Preset(**current_settings)
-            custom_preset.applypreset()
+            custom_preset.apply_preset()
 
     #RESETS TOOL TO DEFAULT VALUES (this is defined in the Presets dictionary)#
     #NEED TO CHANGE IT SO  OPTION MENU ALSO RESETS TO CUSTOM (DEFAULT)
-    def resetTool(self):
+    def reset_tool(self):
         #Default_Custom = presets["Custom"]
         custom_preset = self.loaded_presets["Custom"]
         self.current_preset = custom_preset
-        self.updateUI(custom_preset)
+        self.update_UI(custom_preset)
         self.original_settings = self.get_current_settings()
         self.current_settings = self.original_settings.copy()
         cmds.optionMenu(self.ncloth_controls['presetDropdown'], edit=True, value="Custom")
@@ -318,7 +318,7 @@ class UIManager:
 #UI CREATION#
 #######################################################################################
     #FUNCTION TO CREATE THE UI#
-    def createUI(self):
+    def create_UI(self):
 
         #Checks if the window already exists and deletes it if it does
         if cmds.window('win_maya_ui', ex=True):
@@ -334,7 +334,7 @@ class UIManager:
         cmds.text(label="", width=10)
         cmds.text(label="Physical Attribute Modifier")
         cmds.text(label="", width=315)
-        cmds.button(label = "RESET TOOL", align='right', command = lambda x: self.resetTool())
+        cmds.button(label = "RESET TOOL", align='right', command = lambda x: self.reset_tool())
         cmds.text(label="", width=3)
         cmds.button(label = "INFO", width=60, align='right', command=lambda x: self.open_webpage("https://help.autodesk.com/view/MAYAUL/2024/ENU/?guid=GUID-99C0FE0F-8A37-4EA5-99C2-E08A0EF437A5"))
         cmds.setParent("..")
@@ -351,7 +351,7 @@ class UIManager:
             if preset_name != "Default":
                 cmds.menuItem(label=preset_name)
         cmds.button(label="Delete Preset", height=17,
-                    command=lambda *_: Preset.deletePreset(cmds.optionMenu(self.presetDropdown, query=True, value=True),
+                    command=lambda *_: Preset.delete_preset(cmds.optionMenu(self.presetDropdown, query=True, value=True),
                                                             self.loaded_presets, self.jsonManager, self.ncloth_controls, self.update_preset_dropdown))
         cmds.setParent("..")
 
@@ -454,7 +454,7 @@ class UIManager:
         cmds.columnLayout("mainColumnLayout", adj=True)
         cmds.separator(h=5, style='none')  
         cmds.rowLayout(nc=3,columnWidth=[(1, 200), (2,200), (3,200)], columnAttach=[(1, 'both', 1), (2, 'both', 1), (3, 'both', 1)])
-        cmds.button(label = "Save Custom", width =150, command = lambda *args: Preset.savePreset(
+        cmds.button(label = "Save Custom", width =150, command = lambda *args: Preset.save_preset(
             self.get_current_settings(),
             self.jsonManager,
             self.ncloth_controls,
@@ -468,5 +468,3 @@ class UIManager:
 
         #Show UI window
         cmds.showWindow('win_maya_ui')
-
-#    createUI()

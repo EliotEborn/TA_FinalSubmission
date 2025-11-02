@@ -25,7 +25,7 @@ def main():
     presets = json_manager.load_presets()
 
     ui_manager = UIManager()
-    ui_manager.createUI()
+    ui_manager.create_UI()
 
 if __name__ == "__main__":
     main()
