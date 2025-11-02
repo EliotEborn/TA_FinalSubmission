@@ -11,7 +11,7 @@ new_file_path = os.path.join(file_path, "scripts\PAM")
 
 sys.path.append(new_file_path)
 
-from main_class import main
+from main import main
 
 def CreateToolMenu():
 

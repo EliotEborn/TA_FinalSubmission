@@ -8,7 +8,7 @@ file_path = mel.eval("getenv MAYA_APP_DIR ")
 print(file_path)
 
 new_file_path = os.path.join(file_path, "scripts\PAM")
-
+  
 sys.path.append(new_file_path)
 
 print(new_file_path)
