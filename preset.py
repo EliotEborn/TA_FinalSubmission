@@ -106,7 +106,7 @@ class Preset:
                         cmds.setAttr(ncloth_node + ".maxIterations", self.maxIterations)
                         cmds.setAttr(ncloth_node + ".pushOutRadius", self.pushOutRadius)
         else: 
-            print("Action Cancelled")
+            cmds.warning("Action Cancelled!")
 
 #######################################################################################
 # SAVE PRESET #
@@ -141,17 +141,12 @@ class Preset:
             preset = Preset(**settings_dict)
 
             presets[new_name] = preset
-        
-            print(f"Preset saved: {new_name}")
 
             json_manager.add_preset(new_name, preset)
 
             #LOADING PRESETS AFTER ADDING OTHERWISE IT BREAKS
             #COME BACK AND LOOK INTO IF THIS IS A TEMP FIX OR PERMEMNANT (depends on rest of code)
             presets = json_manager.load_presets()
-
-            print('savePreset, preset.py')
-            print(presets)
 
             update_dropdown_func(presets, ncloth_controls)
         else:
@@ -203,8 +198,6 @@ class Preset:
                 except RuntimeError:
                     pass
     
-            
-            print(f"Preset '{preset_name}' deleted!")
         else:
-            print(f"Deletion of preset '{preset_name}' cancelled!")
+            cmds.warning(f"Deletion of preset '{preset_name}' cancelled!")
 #######################################################################################  

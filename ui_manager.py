@@ -21,7 +21,6 @@ class UiManager:
             self.jsonManager.is_new_file = False
 
         self.loaded_presets = self.jsonManager.load_presets()  
-        print("\nLoaded presets from JSON:")
 
         #INITIALISE BOTH CURRENT AND ORIGINAL SETTINGS DICTIONARIES AND CURRENT PRESET#
         self.current_settings = {}
@@ -45,8 +44,6 @@ class UiManager:
 
     #CHECK IF ANY SETTINGS HAS CHANGED FROM THE NAMED PRESET VALUES (EXCLUDING NAME)#
     def compare_settings(self, current_settings, original_settings):
-        print("Settings inside setting_changed (before comparison):", current_settings)
-        print("Original Settings:", original_settings)
 
         if not current_settings or not original_settings:
             return False
@@ -57,7 +54,7 @@ class UiManager:
 
                 #Checks if current settings are different 
                 if current_settings[key] != original_settings.get(key, None):
-                    print(f"Setting changed: {key}")
+
             #SETTING OTHER THAN NAME HAS BEEN CHANGED
                     return True
 
@@ -66,13 +63,11 @@ class UiManager:
 
 
     #UPDATE PRESET NAME IF SETTINGS HAVE CHANGED (EXCLUDING NAME)#
-    #Move update preset name to on setting changed makes more sense
     def update_preset_name(self, preset_name, current_settings, original_settings):
         if self.compare_settings(current_settings, original_settings):
 
             #SET NEW NAME TO CUSTOM - (name of preset that was edited)
             updated_name = f"Custom - {preset_name}"
-            print(f"Updated name: {updated_name}")
             return updated_name
         #Else, keep original name
         return preset_name
@@ -92,16 +87,7 @@ class UiManager:
         else:
             new_name = self.current_preset.name
 
-        #look into using lambda here
-        #when this get changed set boolean variable to true, therefore dont add custom - anymore
-        #dont remmeber to set vriable back to false next time I change the preset from the dropdown
-        #make sure when call update preset name it doesn't trigger the lambda 
-
         cmds.textField(self.ncloth_controls['fieldpresetName'], edit=True, text=new_name)
-
-    #SETTING UI TO DISPLAY DEFAULT VALUES ON START UP#
-    #REMOVE THIS COMMENTED OUT CODE#
-    #current_preset = loaded_presets["Default"]
 
 #######################################################################################
 # UI UPDATE AND PRESET SELECTION #
@@ -110,8 +96,6 @@ class UiManager:
     #UPDATE UI BASED OFF OF WHICH PRESET BUTTON WAS PRESSED#
     def select_preset(self, preset_name, *args):
 
-        print(f"Preset Selected: {preset_name}")
-
         #Gets selected preset from presets dictionary 
         preset = self.loaded_presets.get(preset_name)
 
@@ -119,10 +103,8 @@ class UiManager:
         if preset:
 
             self.current_preset = preset
-            print(f"selected preset: {preset.name}")
 
             self.update_UI(preset)
-            print(f"Update UI called with preset: {preset.name}")
 
             #GET CURRENT SETTINGS AND COMPARE WITH ORIGINAL SETTINGS
             self.original_settings = self.get_current_settings()
@@ -146,7 +128,7 @@ class UiManager:
                 menu = self.ncloth_controls[menu_name]
                 cmds.optionMenu(menu, edit=True, changeCommand=lambda *_:self.on_setting_changed())
         else:
-            print(f"Preset '{preset_name}' not found!")
+            cmds.warning(f"Preset '{preset_name}' not found!")
 
 
     #UPDATE UI BASED ON THE VALUES OF THE CURRENT PRESET#
@@ -159,8 +141,8 @@ class UiManager:
             #Update physical property sliders with current preset values
             cmds.floatSliderGrp(self.ncloth_controls['bounce'], edit = True, value=current_preset.bounce)
             cmds.floatSliderGrp(self.ncloth_controls['friction'], edit = True, value=current_preset.friction)
-            cmds.intSliderGrp(self.ncloth_controls['stretchResistance'], edit = True, value=current_preset.stretchResistance)
-            cmds.intSliderGrp(self.ncloth_controls['compressionResistance'], edit = True, value=current_preset.compressionResistance)
+            cmds.floatSliderGrp(self.ncloth_controls['stretchResistance'], edit = True, value=current_preset.stretchResistance)
+            cmds.floatSliderGrp(self.ncloth_controls['compressionResistance'], edit = True, value=current_preset.compressionResistance)
             cmds.floatSliderGrp(self.ncloth_controls['bendResistance'], edit = True, value=current_preset.bendResistance)
             cmds.floatSliderGrp(self.ncloth_controls['bendAngleDropoff'], edit = True, value=current_preset.bendAngleDropoff)
             cmds.floatSliderGrp(self.ncloth_controls['restitutionAngle'], edit=True, value=current_preset.restitutionAngle)
@@ -198,8 +180,8 @@ class UiManager:
         "description" : cmds.scrollField(self.ncloth_controls['fieldpresetDesc'], query=True, text = True),
         "bounce" : cmds.floatSliderGrp(self.ncloth_controls['bounce'], query=True, value = True),
         "friction": cmds.floatSliderGrp(self.ncloth_controls['friction'], query=True, value = True),
-        "stretchResistance": cmds.intSliderGrp(self.ncloth_controls['stretchResistance'], query=True, value = True),
-        "compressionResistance": cmds.intSliderGrp(self.ncloth_controls['compressionResistance'], query=True, value = True),
+        "stretchResistance": cmds.floatSliderGrp(self.ncloth_controls['stretchResistance'], query=True, value = True),
+        "compressionResistance": cmds.floatSliderGrp(self.ncloth_controls['compressionResistance'], query=True, value = True),
         "bendResistance": cmds.floatSliderGrp(self.ncloth_controls['bendResistance'], query=True, value = True),
         "bendAngleDropoff":cmds.floatSliderGrp(self.ncloth_controls['bendAngleDropoff'], query=True, value = True),
         "restitutionAngle":cmds.floatSliderGrp(self.ncloth_controls['restitutionAngle'], query=True, value = True),
@@ -218,8 +200,6 @@ class UiManager:
         "maxIterations":cmds.intSliderGrp(self.ncloth_controls['maxIterations'], query=True, value=True),
         "pushOutRadius":cmds.floatSliderGrp(self.ncloth_controls['pushOutRadius'], query=True, value = True)
         }
-
-        print("2nd Current settings:", settings)
 
         return settings
 
@@ -249,37 +229,31 @@ class UiManager:
     #CHECKS IF THE CURRENT UI SETTINGS MATCH THOSE OF AN EXISTING PRESET, IF SO THAT PRESET IS APPLIED TO THE SELECTED MESH, IF NOT "Custom" IS RETURNED#
     def does_preset_match(self, current_settings, preset):
         preset_name = preset.name
-        print(f"\nComparing against: {preset_name}")
         match_found = True 
 
         for key in current_settings:
             preset_attr = getattr(preset, key, None)
 
             if current_settings[key] != preset_attr:
-                print(f"Mismatch on '{key}': UI={current_settings[key]}, Preset={preset_attr}")
                 match_found = False
         if match_found: 
             return preset_name
         return "Custom"
 
     #IDENTIFIES IF CURRENT UI SETTINGS MATCH EXISTING PRESET, THEN APPLIED EITHER THE MATCHED PRESET OR CUSTOM SETTINGS#
-    #UI CLASS
     def identify_and_apply_preset(self):
         current_settings = self.get_current_settings()
         preset_matches = self.does_preset_match(current_settings, self.current_preset)
-        print("Matched Preset:", preset_matches)
 
         #Apply matched
         if preset_matches != "Custom":
-            self.loaded_presets[preset_matches].applypreset()
+            self.loaded_presets[preset_matches].apply_preset()
         else:
             custom_preset = Preset(**current_settings)
             custom_preset.apply_preset()
 
     #RESETS TOOL TO DEFAULT VALUES (this is defined in the Presets dictionary)#
-    #NEED TO CHANGE IT SO  OPTION MENU ALSO RESETS TO CUSTOM (DEFAULT)
     def reset_tool(self):
-        #Default_Custom = presets["Custom"]
         custom_preset = self.loaded_presets["Custom"]
         self.current_preset = custom_preset
         self.update_UI(custom_preset)
@@ -288,15 +262,11 @@ class UiManager:
         cmds.optionMenu(self.ncloth_controls['presetDropdown'], edit=True, value="Custom")
 
     #CREATES BUTTONS FOR EACH PRESET IN THE PRESET DICTIONARY AND ADDS THEM TO THE UI#
-    #UI CLASS
-    #Since changing to drop down instead of side scroller and individual buttons, need to clear existing menu ITEMS rather than deleting children of the layout 
     #Once all items are cleared the dropdown is then filled with all the preset names from the presets dicitonary (except "Default")
-    #NEED TO ADD A CUSTOM PRESET WHICH IS ALL BLANK 
     def update_preset_dropdown(self, loaded_presets, ncloth_controls):
         dropdown = ncloth_controls.get('presetDropdown')
 
         if not dropdown:
-            print("Dropdown not found!")
             return
 
         menu_items = cmds.optionMenu(dropdown, query=True, itemListLong=True) or []
@@ -317,12 +287,19 @@ class UiManager:
     #FUNCTION TO CREATE THE UI#
     def create_UI(self):
 
-        #Checks if the window already exists and deletes it if it does
-        if cmds.window('win_maya_ui', ex=True):
-            cmds.deleteUI('win_maya_ui', window=True)
+        #Naming the UI window 
+        dock_name = "win_maya_ui_dock"
+  
+        #Checks if the dockable window already exists and deletes it if it does
+        if cmds.workspaceControl(dock_name, exists=True):
+            cmds.deleteUI(dock_name, control=True)
+
+        #Checks if the floating window already exists and deletes it if it does
+        if cmds.window('win_maya_ui_dock', exists=True):
+            cmds.deleteUI('win_maya_ui_dock', window=True)
 
         #Creating Main Window
-        cmds.window('win_maya_ui', title='Tool Settings', widthHeight=(500,600))
+        cmds.workspaceControl(dock_name, label="Tool Settings", retain=False, floating=True, width=800, height=900)
 
         #Main layout for UI window with tool title and top buttons
         cmds.columnLayout("mainColumnLayout", adj=True)
@@ -335,7 +312,6 @@ class UiManager:
         cmds.text(label="", width=3)
         cmds.button(label = "INFO", width=60, align='right', command=lambda x: self.open_webpage("https://help.autodesk.com/view/MAYAUL/2024/ENU/?guid=GUID-99C0FE0F-8A37-4EA5-99C2-E08A0EF437A5"))
         cmds.setParent("..")
-
 
         #CHANGED FROM SCROLL LAYOUT TO DROPDOWN BASED OFF OF USER TESTING SESSION
         cmds.separator(h=10, style='none')
@@ -380,8 +356,8 @@ class UiManager:
         cmds.separator(h=10, style='none')
         self.bounce = cmds.floatSliderGrp(l= "Bounce", min = 0.000, max = 1.000, field = True, step=0.01, precision=3)
         self.friction = cmds.floatSliderGrp(l = "Friction", min = 0.0, max = 2.0, field = True, step=0.01, precision=3)
-        self.stretch_res = cmds.intSliderGrp(l = "Stretch Resistance", min = 0, max = 200, field = True)
-        self.comp_res = cmds.intSliderGrp(l = "Compression Resistance", min = 0, max = 200, field = True)
+        self.stretch_res = cmds.floatSliderGrp(l = "Stretch Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
+        self.comp_res = cmds.floatSliderGrp(l = "Compression Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
         self.bend_res = cmds.floatSliderGrp(l = "Bend Resistance", min = 0, max = 5, field = True, step=0.01, precision=3)
         self.bend_ang_do = cmds.floatSliderGrp(l = "Bend Angle Dropoff", min = 0, max = 5, field = True, step=0.01, precision=3)
         self.restitution_ang = cmds.floatSliderGrp(l= "Resitution Angle", min = 0, max =720.0, field = True, step=0.01, precision=3)
@@ -445,9 +421,7 @@ class UiManager:
         #Defined AFTER ncloth_controls and stored as a variable so dropdown can be updated dynamically
         self.ncloth_controls['presetDropdown'] = self.presetDropdown
 
-
         #Buttons for saving custom, applying collider and applying preset
-        #ADD JSONMANAGER TO SAVE PRESET WHEN CLASS IS ADDED
         cmds.columnLayout("mainColumnLayout", adj=True)
         cmds.separator(h=5, style='none')  
         cmds.rowLayout(nc=3,columnWidth=[(1, 200), (2,200), (3,200)], columnAttach=[(1, 'both', 1), (2, 'both', 1), (3, 'both', 1)])
@@ -464,4 +438,4 @@ class UiManager:
         self.update_preset_dropdown(self.loaded_presets, self.ncloth_controls)
 
         #Show UI window
-        cmds.showWindow('win_maya_ui')
+        cmds.workspaceControl(dock_name, edit=True, width=800, height=900)

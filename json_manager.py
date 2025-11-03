@@ -25,8 +25,6 @@ class JsonManager:
         #Combine the existing directory path with file named "presets.json" to get full path to Json File
         self.file_path = os.path.join(self.file_path, "presets.json")
 
-        print(self.file_path)
-
          
         #Create a new JSON file at that location if it doesn't already exist
         if not os.path.exists(self.file_path):
@@ -45,8 +43,8 @@ class JsonManager:
             for name, values in presets_data.items():
                 try:
                     presets[name] = Preset.from_dict(values)
-                except TypeError as e:
-                    print(f"Error loading preset {name}: {e}")
+                except:
+                    continue
             return presets
 
     #Save a dictionary of Preset objects to the JSON File        
@@ -59,8 +57,6 @@ class JsonManager:
     def add_preset(self, name, preset):
 
         presets = self.load_presets() or {}
-        print('add_preset')
-        print(presets)
 
         presets[name] = preset
         self.save_presets(presets)
