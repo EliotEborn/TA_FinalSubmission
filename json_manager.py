@@ -43,7 +43,9 @@ class JsonManager:
             for name, values in presets_data.items():
                 try:
                     presets[name] = Preset.from_dict(values)
-                except:
+
+                #Stops presets from not loading if there is a corrupted preset, otherwise all presets will fail to load
+                except (KeyError, TypeError, ValueError):
                     continue
             return presets
 

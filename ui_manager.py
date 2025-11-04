@@ -1,6 +1,7 @@
 import maya.cmds as cmds
 import maya.mel as mel
 import webbrowser
+import os
 
 
 from preset import Preset
@@ -13,25 +14,36 @@ class UiManager:
     
     def __init__(self):
 
-        #Initialises JSON Manager and loads presets
+        #Initialises JSON Manager which handles saving and loading presets
         self.jsonManager = JsonManager()
 
+        #Checks if the JSON file exists or if it is empty (has no presets loaded into it)
+        if not os.path.exists(self.jsonManager.file_path) or os.path.getsize(self.jsonManager.file_path) == 0:
+            self.jsonManager.save_presets(presets)
+
+        #Load all presets from the JSON file into a dictionary of Preset objects
+        self.loaded_presets = self.jsonManager.load_presets()  
+
+        #Checks if loading the JSON file returned nothing, if so load the default presets into the JSON
+        if not self.loaded_presets:
+            self.loaded_presets = presets
+            self.jsonManager.save_presets(self.loaded_presets)
+
+        #Checks if JSON file was just created, if so load the default presets into the JSON and marks file as not new anymore
         if self.jsonManager.is_new_file: 
             self.jsonManager.save_presets(presets)
             self.jsonManager.is_new_file = False
 
-        self.loaded_presets = self.jsonManager.load_presets()  
-
-        #INITIALISE BOTH CURRENT AND ORIGINAL SETTINGS DICTIONARIES AND CURRENT PRESET#
+        #Initialise both current and original settings dictionaries and current preset
         self.current_settings = {}
         self.original_settings = {}
         self.current_preset = self.loaded_presets["Default"]
 
-        #INITIALISE MENU LOOK-UP DICTIONARIES#
+        #Initilaise menu look-up dictionaries which map menu option names to integers
         self.scalingRel_menu = {'Link' : 0, 'Object Space' : 1, 'World Space' : 2}
         self.pressMeth_menu = {'Manual Pressure Setting' : 0, 'Volume Tracking Model' : 1}
 
-        #STORING NCLOTH_CONTROLS DICTIONARY TO BE POPULATED LATER#
+        #Store nCloth controls dictionary, to be populated later
         self.ncloth_controls = {}
 
 #######################################################################################
@@ -42,50 +54,50 @@ class UiManager:
     def open_webpage(self, url):
         webbrowser.open(url)
 
-    #CHECK IF ANY SETTINGS HAS CHANGED FROM THE NAMED PRESET VALUES (EXCLUDING NAME)#
+    #Check if any settings have changed compred to original preset values (excluding name) 
     def compare_settings(self, current_settings, original_settings):
 
+        #If current_settings and original_settings dictionaries are empty, assume nothing has changed
         if not current_settings or not original_settings:
             return False
 
-        #Iterate over each key and compare values 
+        #Iterate over each key in current_settings and compare values
         for key in current_settings:
             if key != "name":
 
-                #Checks if current settings are different 
+                #Checks if current settings are different to original settings
                 if current_settings[key] != original_settings.get(key, None):
 
-            #SETTING OTHER THAN NAME HAS BEEN CHANGED
+            #Setting other than name has been changed
                     return True
 
-        #NO RELEVANT SETTINGS HAVE CHANGED
+        #No relevant settings have been changed
         return False
 
 
-    #UPDATE PRESET NAME IF SETTINGS HAVE CHANGED (EXCLUDING NAME)#
+    #Update preset name if settings have changed (excluding name) 
     def update_preset_name(self, preset_name, current_settings, original_settings):
         if self.compare_settings(current_settings, original_settings):
 
-            #SET NEW NAME TO CUSTOM - (name of preset that was edited)
-            updated_name = f"Custom - {preset_name}"
-            return updated_name
-        #Else, keep original name
+            #Settings changed, name will be changed to Custom - "Preset Name"
+            return f"Custom - {preset_name}"
+        
+        #If no change is found, keep original name
         return preset_name
     
 #######################################################################################
 # SETTINGS CHANGED HANDLER #
 #######################################################################################
 
-    #CALLBACK TO UPDATE NAME WHEN SETTINGS CHANGED
-    #CALL BACK WHEN ANY SETTING HAS BEEN CHANGED
+
+    #Callback to update the preset name in the UI when settings have changed
     def on_setting_changed(self, *args):
 
+        #Get current settings from the UI
         self.current_settings = self.get_current_settings()
 
-        if self.compare_settings(self.current_settings, self.original_settings):
-            new_name = f"Custom - {self.current_preset.name}"
-        else:
-            new_name = self.current_preset.name
+        #Compare current settings with original settings, if different update preset name
+        new_name = self.update_preset_name(self.current_preset.name, self.current_settings, self.original_settings)
 
         cmds.textField(self.ncloth_controls['fieldpresetName'], edit=True, text=new_name)
 
@@ -93,7 +105,7 @@ class UiManager:
 # UI UPDATE AND PRESET SELECTION #
 #######################################################################################
 
-    #UPDATE UI BASED OFF OF WHICH PRESET BUTTON WAS PRESSED#
+    #Update UI based on which preset button was pressed (which preset was selected from dropdown)
     def select_preset(self, preset_name, *args):
 
         #Gets selected preset from presets dictionary 
@@ -106,14 +118,15 @@ class UiManager:
 
             self.update_UI(preset)
 
-            #GET CURRENT SETTINGS AND COMPARE WITH ORIGINAL SETTINGS
+            #Store current settings as both current and original (needed for comparison later since base preset settings)
             self.original_settings = self.get_current_settings()
             self.current_settings = self.original_settings.copy()
 
-            ##UPDATE PRESET NAME IF SETTINGS HAVE CHANGED
+            ##Update preset name if settings have changed
             updated_name = self.update_preset_name(preset_name, self.current_settings, self.original_settings)
             cmds.textField(self.ncloth_controls['fieldpresetName'], edit=True, text=updated_name)
 
+            #Loops over all sliders and menus adding a callback so any change triggers a name change
             for slider_name in ['bounce', 'friction', 'stretchResistance', 'compressionResistance', 'bendResistance', 'bendAngleDropoff', 
                                 'restitutionAngle', 'rigidity', 'deformResistance', 'restLengthScale', 'pointMass', 'tangentialDrag', 
                                 'damp', 'stretchDamp', 'startPressure', 'airTightness', 'incompressibility', 'maxIterations', 'pushOutRadius']:
@@ -131,7 +144,7 @@ class UiManager:
             cmds.warning(f"Preset '{preset_name}' not found!")
 
 
-    #UPDATE UI BASED ON THE VALUES OF THE CURRENT PRESET#
+    #Update UI based on values of the current preset
     def update_UI(self, current_preset):
 
             #Update the preset name and description in their associated text fields
@@ -173,7 +186,7 @@ class UiManager:
             cmds.intSliderGrp(self.ncloth_controls['maxIterations'], edit = True, value=current_preset.maxIterations)
             cmds.floatSliderGrp(self.ncloth_controls['pushOutRadius'], edit = True, value=current_preset.pushOutRadius)
 
-    #GATHER CURRENT SETTINGS PRESENT ON UI CONTROLS AND RETURN THEM AS A DICTIONARY#
+    #Get current settings from all UI controls and return as a dictionary 
     def get_current_settings(self): 
         settings = {
         "name" : cmds.textField(self.ncloth_controls['fieldpresetName'], query=True, text = True, ),
@@ -207,18 +220,24 @@ class UiManager:
 # COLLIDER AND TOOL ACTIONS #
 #######################################################################################
 
-    #APPLY PASSIVE COLLIDER TO SELECTED MESH#
+    #Apply passive collider to selected mesh
     #NOTE: Passive collider must be added to meshes the user wants the simulated asset to interact with 
     def apply_collider(self):
+
+        #Get current selected objects
         selection = cmds.ls(selection=True)
+
+        #If nothing is selected warn the user and show message in dialog box
         if not selection: 
                 cmds.warning("Please select a mesh to continue")
                 cmds.confirmDialog(title="Confirm Action", message=f"Error: Please select a mesh to continue.", button=['OK'], dismissString='No')
                 return
 
+        #Checks with user if want to apply passive collider to selected objects (objects are listed in the string)
         selection_str = ", ".join(selection)
         confirmation = cmds.confirmDialog(title="Confirm Action", message=f"Are you sure you'd like to apply passive collider to: {selection_str}?", button=['Yes','No'], defaultButton='Yes', cancelButton='No', dismissString='No')
 
+        #If user says yes, the passive collider is applied to the selected mesh
         if confirmation == 'Yes': 
             for obj in selection:
                 cmds.select(obj, replace=True) 
@@ -226,39 +245,50 @@ class UiManager:
                 #Use MEL command to apply passive collider to the selected mesh/es for nCloth simulation
                 mel.eval("makeCollideNCloth;")
 
-    #CHECKS IF THE CURRENT UI SETTINGS MATCH THOSE OF AN EXISTING PRESET, IF SO THAT PRESET IS APPLIED TO THE SELECTED MESH, IF NOT "Custom" IS RETURNED#
+    #Checks if the current UI settings match those of an existing preset, if so that preset is applied to the mesh, if no "Custom" is returned
     def does_preset_match(self, current_settings, preset):
         preset_name = preset.name
         match_found = True 
 
+        #Compare each parameter in current UI to specified parameters in the selected preset
         for key in current_settings:
             preset_attr = getattr(preset, key, None)
 
             if current_settings[key] != preset_attr:
                 match_found = False
+        
+        #If all settings match that exact preset will be returned, if they don't then "Custom" will be returned
         if match_found: 
             return preset_name
         return "Custom"
 
-    #IDENTIFIES IF CURRENT UI SETTINGS MATCH EXISTING PRESET, THEN APPLIED EITHER THE MATCHED PRESET OR CUSTOM SETTINGS#
+    #Identifies if current UI settings match the exisitng preset, then applies either the matched preset or custom settings
     def identify_and_apply_preset(self):
         current_settings = self.get_current_settings()
         preset_matches = self.does_preset_match(current_settings, self.current_preset)
 
-        #Apply matched
+        #If a preset matches, apply it
         if preset_matches != "Custom":
             self.loaded_presets[preset_matches].apply_preset()
         else:
+            #Otherwise, apply custom preset
             custom_preset = Preset(**current_settings)
             custom_preset.apply_preset()
 
-    #RESETS TOOL TO DEFAULT VALUES (this is defined in the Presets dictionary)#
+    #Resets tool to default values (This is defined in presets dictionary in all_presets)
     def reset_tool(self):
+        #Get default custom preset
         custom_preset = self.loaded_presets["Custom"]
         self.current_preset = custom_preset
+
+        #Update UI with values from custom preset
         self.update_UI(custom_preset)
+
+        #Store current settings as orginal and make a copy for comparison in other functions
         self.original_settings = self.get_current_settings()
         self.current_settings = self.original_settings.copy()
+
+        #Update preset dropdown to show "Custom"
         cmds.optionMenu(self.ncloth_controls['presetDropdown'], edit=True, value="Custom")
 
     #CREATES BUTTONS FOR EACH PRESET IN THE PRESET DICTIONARY AND ADDS THEM TO THE UI#
@@ -269,10 +299,12 @@ class UiManager:
         if not dropdown:
             return
 
+        #Clear existing menu items
         menu_items = cmds.optionMenu(dropdown, query=True, itemListLong=True) or []
         for item in menu_items:
             cmds.deleteUI(item)
 
+        #Repopulate dropdown with all menu items except Default 
         for preset_name in loaded_presets.keys():
 
             if not preset_name or preset_name == "Default":
@@ -360,7 +392,7 @@ class UiManager:
         self.comp_res = cmds.floatSliderGrp(l = "Compression Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
         self.bend_res = cmds.floatSliderGrp(l = "Bend Resistance", min = 0, max = 5, field = True, step=0.01, precision=3)
         self.bend_ang_do = cmds.floatSliderGrp(l = "Bend Angle Dropoff", min = 0, max = 5, field = True, step=0.01, precision=3)
-        self.restitution_ang = cmds.floatSliderGrp(l= "Resitution Angle", min = 0, max =720.0, field = True, step=0.01, precision=3)
+        self.restitution_ang = cmds.floatSliderGrp(l= "Restitution Angle", min = 0, max =720.0, field = True, step=0.01, precision=3)
         self.rigidity =  cmds.floatSliderGrp(l= "Rigidity", min = 0, max = 10, field = True, step=0.01, precision=3)
         self.deform_res = cmds.floatSliderGrp(l="Deform Resistance", min = 0, max = 10, field = True, step=0.01, precision=3)
         self.rest_len_scale = cmds.floatSliderGrp(l = "Rest Length Scale", min = 0, max = 2, field=True, step=0.01, precision=3)
