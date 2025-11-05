@@ -37,7 +37,7 @@ class UiManager:
         #Initialise both current and original settings dictionaries and current preset
         self.current_settings = {}
         self.original_settings = {}
-        self.current_preset = self.loaded_presets["Default"]
+        self.current_preset = self.loaded_presets["Custom"]
 
         #Initilaise menu look-up dictionaries which map menu option names to integers
         self.scalingRel_menu = {'Link' : 0, 'Object Space' : 1, 'World Space' : 2}
@@ -54,7 +54,7 @@ class UiManager:
     def open_webpage(self, url):
         webbrowser.open(url)
 
-    #Check if any settings have changed compred to original preset values (excluding name) 
+    #Check if any settings have changed compared to original preset values (excluding name) 
     def compare_settings(self, current_settings, original_settings):
 
         #If current_settings and original_settings dictionaries are empty, assume nothing has changed
@@ -267,6 +267,11 @@ class UiManager:
         current_settings = self.get_current_settings()
         preset_matches = self.does_preset_match(current_settings, self.current_preset)
 
+        preset_name = getattr(self.current_preset, "name", None)
+        if not preset_name:
+            cmds.warning("No preset selected. Please select a preset to apply. ")
+            return
+
         #If a preset matches, apply it
         if preset_matches != "Custom":
             self.loaded_presets[preset_matches].apply_preset()
@@ -291,7 +296,7 @@ class UiManager:
         #Update preset dropdown to show "Custom"
         cmds.optionMenu(self.ncloth_controls['presetDropdown'], edit=True, value="Custom")
 
-    #CREATES BUTTONS FOR EACH PRESET IN THE PRESET DICTIONARY AND ADDS THEM TO THE UI#
+    #Creates buttons in the dropdown for each preset from the preset dictionary and adds them to the UI
     #Once all items are cleared the dropdown is then filled with all the preset names from the presets dicitonary (except "Default")
     def update_preset_dropdown(self, loaded_presets, ncloth_controls):
         dropdown = ncloth_controls.get('presetDropdown')
@@ -316,7 +321,7 @@ class UiManager:
 #######################################################################################
 # UI CREATION #
 #######################################################################################
-    #FUNCTION TO CREATE THE UI#
+    #Function to create the UI
     def create_UI(self):
 
         #Naming the UI window 
@@ -331,7 +336,7 @@ class UiManager:
             cmds.deleteUI('win_maya_ui_dock', window=True)
 
         #Creating Main Window
-        cmds.workspaceControl(dock_name, label="Tool Settings", retain=False, floating=True, width=800, height=900)
+        cmds.workspaceControl(dock_name, label="P.A.M.", retain=False, floating=True, width=800, height=900)
 
         #Main layout for UI window with tool title and top buttons
         cmds.columnLayout("mainColumnLayout", adj=True)
@@ -449,7 +454,7 @@ class UiManager:
                        'maxIterations' : self.max_ite,
                        'pushOutRadius' : self.po_rad}  
 
-        #USED TO REPLACE PLACEHOLDER IN CREATION OF DROPDOWN MENU
+        #Used to replace placeholder from init in creation of dropdown menu
         #Defined AFTER ncloth_controls and stored as a variable so dropdown can be updated dynamically
         self.ncloth_controls['presetDropdown'] = self.presetDropdown
 

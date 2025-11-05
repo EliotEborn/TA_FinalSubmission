@@ -8,6 +8,7 @@ from preset import Preset
 # JSON MANAGER CLASS #
 # Handles loading, saving and managing presets in JSON file #
 #######################################################################################
+
 class JsonManager:
     
     #Initialise the JsonManager class

@@ -2,6 +2,7 @@ from preset import Preset
 
 #PRESET OBJECTS#
 #######################################################################################
+
 Default_Custom = Preset(name="", description="", bounce=0.0, friction=0.00,
                  stretchResistance=0.0, compressionResistance=0.0, bendResistance=0.0, 
                  bendAngleDropoff=0.0, restitutionAngle=0.0, rigidity=0.0, deformResistance=0.0,
@@ -81,6 +82,7 @@ Default = Preset(name="Default", description="",  bounce=0.0, friction=0.00,
 
 #PRESET DICTIONARY#
 #######################################################################################
+
 presets = {
     "Custom" : Default_Custom,
     "T-Shirt Cotton" : TShirt_Cotton,
@@ -94,6 +96,7 @@ presets = {
     "Lava" : Lava,
     "Default" : Default
 }
+
 #######################################################################################
 
 

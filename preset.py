@@ -3,7 +3,6 @@ import maya.mel as mel
 
 # PRESET CLASS #
 #######################################################################################
-
 class Preset:
     def __init__(self, name, description, bounce, friction, 
                  stretchResistance, compressionResistance, bendResistance, 
@@ -11,6 +10,8 @@ class Preset:
                  restLengthScale, pointMass, tangentialDrag, damp, stretchDamp,
                  scalingRelation, pressureMethod, startPressure, airTightness, incompressibility,
                  maxIterations, pushOutRadius):
+        
+        #Initialising all simulation attributes 
         self.name = name
         self.description = description
         
@@ -54,7 +55,7 @@ class Preset:
 # APPLY PRESET #
 #######################################################################################
 
-    # APPLY SELECTED PRESETS MODIFIED NCLOTH ATTRIBUTES TO THE SELECTED MESH #
+    # Apply selected presets modified nCloth attributes to the selected mesh 
     def apply_preset(self):
         #Get currently selected objects in the scene
         selection = cmds.ls(selection=True)
@@ -105,18 +106,21 @@ class Preset:
                         cmds.setAttr(ncloth_node + ".incompressibility", self.incompressibility)
                         cmds.setAttr(ncloth_node + ".maxIterations", self.maxIterations)
                         cmds.setAttr(ncloth_node + ".pushOutRadius", self.pushOutRadius)
+
+        #User has cancelled the action
         else: 
-            cmds.warning("Action Cancelled!")
+            return
 
 #######################################################################################
 # SAVE PRESET #
 #######################################################################################
-    # SAVES A NEW PRESET BASED ON CURRENT UI SETTINGS AND ADDS IT TO THE PRESETS DICTIONARY #
+    # Saves a new preset based on current UI settings and adds it to the presets dictionary
     #Class method used so the class can be called directly since we do not have a class instance 
+
     @staticmethod
     def save_preset(settings_dict, json_manager, ncloth_controls, update_dropdown_func, presets):
 
-        #STRIP MAKES SURE NO LEADING OR TRAILING SPACES 
+        #Ensures new name of custom preset has no leading or trailing spaces
         new_name = settings_dict.get("name", "").strip()
 
         #Saving prevented if preset name is empty or already exists
@@ -137,6 +141,7 @@ class Preset:
         confirmation = cmds.confirmDialog(title="Confirm Save", message=f"Are you sure you want to save: '{new_name}'?", button=["Yes", "No"], dismissString="No")
 
         if confirmation == "Yes":
+
             #Create and save the new preset
             preset = Preset(**settings_dict)
 
@@ -144,20 +149,21 @@ class Preset:
 
             json_manager.add_preset(new_name, preset)
 
-            #LOADING PRESETS AFTER ADDING OTHERWISE IT BREAKS
-            #COME BACK AND LOOK INTO IF THIS IS A TEMP FIX OR PERMEMNANT (depends on rest of code)
+            #Loading presets after adding otherwise it breaks
             presets = json_manager.load_presets()
 
             update_dropdown_func(presets, ncloth_controls)
         else:
             cmds.warning(f"'{new_name}' save cancelled!")
+
 #######################################################################################
 #DELETE PRESET#
 #######################################################################################
+
     @classmethod
     def delete_preset(cls, preset_name, loaded_presets, json_manager, ncloth_controls, update_dropdown_func):
 
-        #ENSURES PRESET NAME HAS NO SPACES
+        #Ensures preset name has no leading or trailing spaces
         preset_name = preset_name.strip()
 
         #Prevent deleting pre-defined presets
@@ -176,21 +182,21 @@ class Preset:
 
         if confirmation == "Yes":
 
-            #REMOVE PRESET FROM DICTIONARY
+            #Remove preset from dictionary
             loaded_presets.pop(preset_name)
             json_manager.save_presets(loaded_presets)
 
-            #UPDATE DROPDOWN MENU OF PRESETS
+            #Update dropdown menu of presets
             update_dropdown_func(loaded_presets, ncloth_controls)
             
-            #RESET UI FIELDS
+            #Reset UI fields
             if ncloth_controls.get('fieldpresetName'):
                 cmds.textField(ncloth_controls['fieldpresetName'], edit=True, text="")
 
             if ncloth_controls.get('fieldpresetDesc'):
                 cmds.scrollField(ncloth_controls['fieldpresetDesc'], edit=True, text="")
 
-            #SET DROPDOWN TO DISPLAY DEFAULT
+            #Set dropdown to display default
             dropdown = ncloth_controls.get('presetDropdown')
             if dropdown and "Custom" in loaded_presets:
                 try:
@@ -200,4 +206,5 @@ class Preset:
     
         else:
             cmds.warning(f"Deletion of preset '{preset_name}' cancelled!")
+
 #######################################################################################  
