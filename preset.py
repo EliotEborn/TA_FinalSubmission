@@ -154,7 +154,7 @@ class Preset:
 
             update_dropdown_func(presets, ncloth_controls)
         else:
-            cmds.warning(f"'{new_name}' save cancelled!")
+            return
 
 #######################################################################################
 #DELETE PRESET#
@@ -205,6 +205,6 @@ class Preset:
                     pass
     
         else:
-            cmds.warning(f"Deletion of preset '{preset_name}' cancelled!")
+            return
 
 #######################################################################################  
