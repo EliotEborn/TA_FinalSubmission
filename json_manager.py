@@ -56,7 +56,8 @@ class JsonManager:
 
         with open(self.file_path, 'w') as file:
             json.dump(presets_data, file, indent=4)
-   
+
+    #Adds/updates preset in the JSON File
     def add_preset(self, name, preset):
 
         presets = self.load_presets() or {}
