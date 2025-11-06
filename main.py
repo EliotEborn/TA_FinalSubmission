@@ -6,7 +6,7 @@ import os
 file_path = mel.eval("getenv MAYA_APP_DIR ")
 
 #Add the scripts\PAM folder path to the Maya directory
-new_file_path = os.path.join(file_path, "scripts\PAM")
+new_file_path = os.path.join(file_path, "scripts", "PAM")
 
 #Add scripts\PAM to Python's module search path
 sys.path.append(new_file_path)
