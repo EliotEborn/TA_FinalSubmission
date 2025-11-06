@@ -38,7 +38,7 @@ Heavy_Denim = Preset(name="Heavy Denim", description="A thick durable fabric tha
                  maxIterations=1000, pushOutRadius=0.108)
 
 Thick_Leather = Preset(name="Thick Leather", description="A durable, robust material primarily known for its strength, rigidity and longevity. It is typical made from cow or buffalo hide and has a minimum thickness of over 1.4mm.",  
-                 bounce=0.0, friction=0.60, stretchResistance=40.0, compressionResistance=40.0, bendResistance=10.0, 
+                 bounce=0.0, friction=0.60, stretchResistance=50.0, compressionResistance=50.0, bendResistance=10.0, 
                  bendAngleDropoff=0.727, restitutionAngle=0.0, rigidity=0.0, deformResistance=0.0,
                  restLengthScale=1.0, pointMass=3.0, tangentialDrag=0.20, damp=8.00, stretchDamp=0.0,
                  scalingRelation=1, pressureMethod=0, startPressure=0.0, airTightness=0.0, incompressibility=0.0,
@@ -67,7 +67,7 @@ Concrete = Preset(name="Concrete", description="A building material made from a 
 
 Lava = Preset(name="Lava", description="Hot, molten or semi-fluid rock erupted from a volcano or fissure.",  bounce=0.0, friction=0.603,
                  stretchResistance=0.01, compressionResistance=0.01, bendResistance=0.70, 
-                 bendAngleDropoff=0.851, restitutionAngle=720, rigidity=0.0, deformResistance=0.0,
+                 bendAngleDropoff=0.851, restitutionAngle=720, rigidity=0.0, deformResistance=1.0,
                  restLengthScale=1.0, pointMass=10.0, tangentialDrag=0.0, damp=1.5, stretchDamp=0.10,
                  scalingRelation=1, pressureMethod=1, startPressure=0.0, airTightness=1.0, incompressibility=5.0,
                  maxIterations=500, pushOutRadius=10.0)

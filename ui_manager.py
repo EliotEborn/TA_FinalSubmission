@@ -392,18 +392,18 @@ class UiManager:
 
         cmds.separator(h=10, style='none')
         self.bounce = cmds.floatSliderGrp(l= "Bounce", min = 0.000, max = 1.000, field = True, step=0.01, precision=3)
-        self.friction = cmds.floatSliderGrp(l = "Friction", min = 0.0, max = 2.0, field = True, step=0.01, precision=3)
+        self.friction = cmds.floatSliderGrp(l = "Friction", min = 0.0, max = 4.0, field = True, step=0.01, precision=3)
         self.stretch_res = cmds.floatSliderGrp(l = "Stretch Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
         self.comp_res = cmds.floatSliderGrp(l = "Compression Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
-        self.bend_res = cmds.floatSliderGrp(l = "Bend Resistance", min = 0, max = 5, field = True, step=0.01, precision=3)
-        self.bend_ang_do = cmds.floatSliderGrp(l = "Bend Angle Dropoff", min = 0, max = 5, field = True, step=0.01, precision=3)
+        self.bend_res = cmds.floatSliderGrp(l = "Bend Resistance", min = 0, max = 200, field = True, step=0.01, precision=3)
+        self.bend_ang_do = cmds.floatSliderGrp(l = "Bend Angle Dropoff", min = 0, max = 1, field = True, step=0.01, precision=3)
         self.restitution_ang = cmds.floatSliderGrp(l= "Restitution Angle", min = 0, max =720.0, field = True, step=0.01, precision=3)
         self.rigidity =  cmds.floatSliderGrp(l= "Rigidity", min = 0, max = 10, field = True, step=0.01, precision=3)
         self.deform_res = cmds.floatSliderGrp(l="Deform Resistance", min = 0, max = 10, field = True, step=0.01, precision=3)
         self.rest_len_scale = cmds.floatSliderGrp(l = "Rest Length Scale", min = 0, max = 2, field=True, step=0.01, precision=3)
-        self.mass = cmds.floatSliderGrp(l = "Mass", min = 0, max = 5, field = True, step=0.01, precision=3)
+        self.mass = cmds.floatSliderGrp(l = "Mass", min = 0, max = 50, field = True, step=0.01, precision=3)
 
-        self.tang_drag = cmds.floatSliderGrp(l = "Tangential Drag", min = 0, max = 5, field = True, step=0.01, precision=3)
+        self.tang_drag = cmds.floatSliderGrp(l = "Tangential Drag", min = 0, max = 1, field = True, step=0.01, precision=3)
         self.damp = cmds.floatSliderGrp(l = "Damp", min = 0, max = 10, field = True, step=0.01, precision=3)
         self.stretch_damp = cmds.floatSliderGrp(l = "Stretch Damp", min = 0, max =10, field = True, step=0.01, precision=3)
 
@@ -422,11 +422,11 @@ class UiManager:
         cmds.menuItem(l="Volume Tracking Model")
         cmds.setParent("..")
 
-        self.start_press = cmds.floatSliderGrp(l = "Start Pressure", min = -1, max =2, field = True, step=0.01, precision=3)
+        self.start_press = cmds.floatSliderGrp(l = "Start Pressure", min = -1, max =1, field = True, step=0.01, precision=3)
         self.air_tight = cmds.floatSliderGrp(l="Air Tightness", min = 0.000, max = 1.000, field = True, step=0.01, precision=3)
         self.incomp = cmds.floatSliderGrp(l="Incompressibility", min = 0.000, max = 200.000, field = True, step=0.01, precision=3)
-        self.max_ite = cmds.intSliderGrp(l = "Max Iterations", min = 0, max = 1000, field = True)
-        self.po_rad = cmds.floatSliderGrp(l = "Push Out Radius", min = 0, max = 10, field = True, step=0.01, precision=3)
+        self.max_ite = cmds.intSliderGrp(l = "Max Iterations", min = 0, max = 5000, field = True)
+        self.po_rad = cmds.floatSliderGrp(l = "Push Out Radius", min = -1, max = 10, field = True, step=0.01, precision=3)
 
         #nCloth controls stored in a dictionary for later use
         self.ncloth_controls = {
